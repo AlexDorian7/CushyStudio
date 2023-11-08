@@ -2,7 +2,7 @@ import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { cwd } from 'process'
 import { useEffect } from 'react'
-import { Button, ButtonGroup, Loader, Message } from 'rsuite'
+import { Button, ButtonGroup, Loader, Message, Toggle } from 'rsuite'
 import { useSt } from 'src/state/stateContext'
 import { DraftID, DraftL } from 'src/models/Draft'
 import { openInVSCode } from 'src/utils/electron/openInVsCode'
@@ -148,6 +148,14 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                     </div>
                     <div tw='self-end flex gap-2 items-center' style={{ width: 'fit-content' }}>
                         {/* <Input>foo</Input> */}
+                        <div>
+                            <Toggle
+                                //
+                                onChange={(t) => (st.preferDenseForms = t)}
+                                checked={st.preferDenseForms}
+                            ></Toggle>
+                            dense
+                        </div>
                         <RunOrAutorunUI draft={draft} />
                     </div>
                     {/* <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
@@ -187,6 +195,7 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                                 ev.preventDefault()
                                 ev.stopPropagation()
                                 draft.start()
+<<<<<<< HEAD
                             }}
                         >
                             <div tw='[margin-left:6rem]'>{card.manifest.description}</div>
@@ -197,6 +206,24 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                             />
                         </form>
                     }
+=======
+                            }
+                        }}
+                        onSubmit={(ev) => {
+                            console.log('SUBMIT')
+                            ev.preventDefault()
+                            ev.stopPropagation()
+                            draft.start()
+                        }}
+                    >
+                        <div tw='italic'>{card.manifest.description}</div>
+                        <ResultWrapperUI
+                            //
+                            res={draft.form}
+                            whenValid={(req) => <WidgetUI req={req} />}
+                        />
+                    </form>
+>>>>>>> c68ddc2167d132a1b1d8622d2a0e8576db2c72ff
                 </ScrollablePaneUI>
                 <TabUI title='Debug:' tw='mt-auto'>
                     <div>no</div>
