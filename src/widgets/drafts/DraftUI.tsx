@@ -16,6 +16,7 @@ import { ResultWrapperUI } from '../misc/ResultWrapperUI'
 import { JSONHighlightedCodeUI, TypescriptHighlightedCodeUI } from '../misc/TypescriptHighlightedCodeUI'
 import { WidgetUI } from '../../controls/widgets/WidgetUI'
 import { ActionDraftListUI } from './ActionDraftListUI'
+import { BlocklyDraftWidget } from 'src/blockly/blocklyWidget'
 
 export const CurrentDraftUI = observer(function CurrentDraftUI_(p: {}) {
     const st = useSt()
@@ -110,6 +111,10 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
         margin: '0 auto',
         padding: '1rem',
     }
+
+    // 6. Blockly Code
+    let blocklyEnabled = true;
+    let blocklyVisible = true;
     return (
         <draftContext.Provider value={draft} key={draft.id}>
             <div
@@ -129,6 +134,14 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                                 onClick={() => openInVSCode(cwd(), card.absPath)}
                             >
                                 Edit
+                            </Button>
+                            <Button
+                                color='violet'
+                                appearance='subtle'
+                                startIcon={<span className='material-symbols-outlined'>edit</span>}
+                                onClick={() => { if (blocklyEnabled) blocklyVisible = !blocklyVisible; else blocklyVisible = false; }}
+                            >
+                                Edit in Blockly
                             </Button>
                             {/* <AddDraftUI af={card} /> */}
                         </ButtonGroup>
@@ -152,35 +165,38 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                     </ErrorBoundary> */}
                 </div>
                 {/* <ActionDraftListUI card={card} /> */}
+                
                 <ScrollablePaneUI
-                    // style={{ border: '1px solid blue' }}
-                    // style={{ border: '7px solid #152865' }}
-                    className='flex-grow rounded-xl bg-contrasted-gradient'
+                // style={{ border: '1px solid blue' }}
+                // style={{ border: '7px solid #152865' }}
+                className='flex-grow rounded-xl bg-contrasted-gradient'
                 >
-                    <form
-                        onKeyUp={(ev) => {
-                            // submit on meta+enter
-                            if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
+                    {blocklyEnabled && blocklyVisible ? <BlocklyDraftWidget tw="h-full w-full" draft={draft} /> : 
+                        <form
+                            onKeyUp={(ev) => {
+                                // submit on meta+enter
+                                if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
+                                    console.log('SUBMIT')
+                                    ev.preventDefault()
+                                    ev.stopPropagation()
+                                    draft.start()
+                                }
+                            }}
+                            onSubmit={(ev) => {
                                 console.log('SUBMIT')
                                 ev.preventDefault()
                                 ev.stopPropagation()
                                 draft.start()
-                            }
-                        }}
-                        onSubmit={(ev) => {
-                            console.log('SUBMIT')
-                            ev.preventDefault()
-                            ev.stopPropagation()
-                            draft.start()
-                        }}
-                    >
-                        <div tw='[margin-left:6rem]'>{card.manifest.description}</div>
-                        <ResultWrapperUI
-                            //
-                            res={draft.form}
-                            whenValid={(req) => <WidgetUI req={req} />}
-                        />
-                    </form>
+                            }}
+                        >
+                            <div tw='[margin-left:6rem]'>{card.manifest.description}</div>
+                            <ResultWrapperUI
+                                //
+                                res={draft.form}
+                                whenValid={(req) => <WidgetUI req={req} />}
+                            />
+                        </form>
+                    }
                 </ScrollablePaneUI>
                 <TabUI title='Debug:' tw='mt-auto'>
                     <div>no</div>
