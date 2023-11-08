@@ -173,13 +173,13 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                     </ErrorBoundary> */}
                 </div>
                 {/* <ActionDraftListUI card={card} /> */}
-                
+
                 <ScrollablePaneUI
-                // style={{ border: '1px solid blue' }}
-                // style={{ border: '7px solid #152865' }}
-                className='flex-grow rounded-xl bg-contrasted-gradient'
+                    // style={{ border: '1px solid blue' }}
+                    // style={{ border: '7px solid #152865' }}
+                    className='flex-grow rounded-xl bg-contrasted-gradient'
                 >
-                    {blocklyEnabled && blocklyVisible ? <BlocklyDraftWidget tw="h-full w-full" draft={draft} /> : 
+                    {blocklyEnabled && blocklyVisible ? <BlocklyDraftWidget tw="h-full w-full" draft={draft} /> :
                         <form
                             onKeyUp={(ev) => {
                                 // submit on meta+enter
@@ -195,10 +195,9 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                                 ev.preventDefault()
                                 ev.stopPropagation()
                                 draft.start()
-<<<<<<< HEAD
                             }}
                         >
-                            <div tw='[margin-left:6rem]'>{card.manifest.description}</div>
+                            <div tw='italic'>{card.manifest.description}</div>
                             <ResultWrapperUI
                                 //
                                 res={draft.form}
@@ -206,24 +205,6 @@ export const DraftUI = observer(function ActionFormUI_(p: { draft: DraftL | Draf
                             />
                         </form>
                     }
-=======
-                            }
-                        }}
-                        onSubmit={(ev) => {
-                            console.log('SUBMIT')
-                            ev.preventDefault()
-                            ev.stopPropagation()
-                            draft.start()
-                        }}
-                    >
-                        <div tw='italic'>{card.manifest.description}</div>
-                        <ResultWrapperUI
-                            //
-                            res={draft.form}
-                            whenValid={(req) => <WidgetUI req={req} />}
-                        />
-                    </form>
->>>>>>> c68ddc2167d132a1b1d8622d2a0e8576db2c72ff
                 </ScrollablePaneUI>
                 <TabUI title='Debug:' tw='mt-auto'>
                     <div>no</div>
@@ -251,7 +232,7 @@ export const RunOrAutorunUI = observer(function RunOrAutorunUI_(p: { draft: Draf
                 active={draft.shouldAutoStart}
                 color={draft.shouldAutoStart ? 'green' : undefined}
                 onClick={() => draft.setAutostart(!draft.shouldAutoStart)}
-                // onChange={(ev, checked) => draft.setAutostart(checked)}
+            // onChange={(ev, checked) => draft.setAutostart(checked)}
             >
                 Autorun
             </Button>
