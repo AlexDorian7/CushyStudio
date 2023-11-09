@@ -82,6 +82,34 @@ export class SchemaL {
         return candidates.map((x) => ({ label: x, value: x }))
     }
 
+    // BLOCKLY
+
+    blockly_blockHeader(blockId: string, blockName: string):string {
+        return `Blockly.Blocks['${blockId}'] = {init:function() { this.appendDummyInput().appendField("${blockName}"); `;
+    }
+
+    blockly_blockFooter(code: string, color: number):string {
+        code += `this.setColour(${color}); }};`;
+        return code;
+    }
+
+    blockly_addTypeDropdown(code: string, types: Array<{comfyType: string, normalizedType: string, tsType: string}>):string {
+        let options = [];
+        for (const t of types) {
+            options.push([t.normalizedType, t.normalizedType]);
+        }
+        code += `this.appendDummyInput().appendField("Type:").appendField(new Blockly.FieldDropdown(${JSON.stringify(options)}), "Type"); `;
+        return code;
+    }
+
+    blockly_registerTypeBlocks(types: Array<{comfyType: string, normalizedType: string, tsType: string}>):string {
+        let code = "";
+        for (const t of types) {
+            code += this.blockly_blockHeader(`type_${t.normalizedType}`, `Type: ${t.normalizedType}`) + "this.setOutput(true, 'type'); " + this.blockly_blockFooter("", 225);
+        }
+        return code;
+    }
+
     knownTypes = new Set<string>()
     knownEnumsByName = new Map<EnumName, EnumInfo>()
     knownEnumsByHash = new Map<EnumHash, EnumInfo>()
@@ -288,10 +316,19 @@ export class SchemaL {
         return out
     }
 
-    codegenDTS = (): string => {
+    codegenDTS = (): [string, string] => {
         const prefix = '../src/'
         const b = new CodeBuffer()
+        const blocks = new CodeBuffer()
         const p = b.w
+        const bl = blocks.w
+
+        bl('')
+        bl(`import Blockly from "blockly";`)
+        bl('')
+        bl('// Block Defines')
+
+
 
         // 1️⃣ if (opts.cushySrcPathPrefix == null) {
         // 1️⃣     p(`/// <reference path="cushy.d.ts" />`)
@@ -381,6 +418,8 @@ export class SchemaL {
             // ${i.type} | HasSingle_${i.type}
         }
 
+        bl(this.blockly_registerTypeBlocks(types));
+
         p(`\n// 6. ENUMS -------------------------------`)
         for (const e of this.knownEnumsByHash.values()) {
             if (e.values.length > 0) {
@@ -445,7 +484,94 @@ export class SchemaL {
         // p(`declare const WORKFLOW: (builder: (graph: ComfyGraph) => void) => void`)
         // b.writeTS('./src/core/Comfy.ts')
         // p(`declare const WORKFLOW: import("core/WorkflowFn").WorkflowType`)
-        return b.content
+
+        // Blockly Toolbar
+
+        const toolboxCategories = {
+            kind: "categoryToolbox",
+            contents: [
+                {
+                    kind: "category",
+                    name: "Hats",
+                    colour: "40",
+                    contents: [
+                        {
+                            kind: "block",
+                            type: "ui_hat",
+                        },
+                        {
+                            kind: "block",
+                            type: "run_hat",
+                        },
+                    ],
+                },
+                {
+                    kind: "category",
+                    name: "Types",
+                    colour: "225",
+                    contents: [],
+                },
+                {
+                    kind: "category",
+                    name: "UI",
+                    colour: "90",
+                    contents: [
+                        {
+                            kind: "block",
+                            type: "ui_param",
+                        },
+                        {
+                            kind: "block",
+                            type: "text",
+                        },
+                    ],
+                },
+                {
+                    kind: "category",
+                    name: "Logic",
+                    colour: "#5C81A6",
+                    contents: [
+                        {
+                            kind: "block",
+                            type: "controls_if",
+                        },
+                        {
+                            kind: "block",
+                            type: "logic_compare",
+                        },
+                    ],
+                },
+                {
+                    kind: "category",
+                    name: "Math",
+                    colour: "#5CA65C",
+                    contents: [
+                        {
+                            kind: "block",
+                            type: "math_round",
+                        },
+                        {
+                            kind: "block",
+                            type: "math_number",
+                        },
+                    ],
+                },
+                {
+                    "kind": "category",
+                    "name": "Functions",
+                    "colour": "#7F00FF",
+                    "custom": "PROCEDURE"
+                }
+            ],
+        };
+
+        for (const t of types) {
+            toolboxCategories.contents[1].contents?.push({kind: "block", type: `type_${t.normalizedType}`});
+        }
+
+        bl(`export const toolBoxCategories = ${JSON.stringify(toolboxCategories)};`);
+
+        return [b.content, blocks.content]
     }
 
     private toTSType = (t: string) => (ComfyPrimitiveMapping[t] ? `${ComfyPrimitiveMapping[t]} | Slot<'${t}'>` : `Slot<'${t}'>`)

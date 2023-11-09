@@ -87,6 +87,7 @@ export class STATE {
     comfyJSONPath: AbsolutePath
     embeddingsPath: AbsolutePath
     nodesTSPath: AbsolutePath
+    blocklyTSPath: AbsolutePath
     actionsFolderPathAbs: AbsolutePath
     actionsFolderPathRel: RelativePath
     outputFolderPath: AbsolutePath
@@ -196,6 +197,7 @@ export class STATE {
         this.comfyJSONPath = this.resolve(this.rootPath, asRelativePath('schema/nodes.json'))
         this.embeddingsPath = this.resolve(this.rootPath, asRelativePath('schema/embeddings.json'))
         this.nodesTSPath = this.resolve(this.rootPath, asRelativePath('schema/global.d.ts'))
+        this.blocklyTSPath = this.resolve(this.rootPath, asRelativePath('schema/blocklySchema.ts'))
         this.outputFolderPath = this.cacheFolderPath // this.resolve(this.cacheFolderPath, asRelativePath('outputs'))
 
         this.actionsFolderPathRel = asRelativePath('library')
@@ -461,7 +463,8 @@ export class STATE {
             // const comfySchemaBuff = Buffer.from(comfySchemaTs, 'utf8')
             const comfySchemaTsFormatted = comfySchemaTs
             // console.log(this.nodesTSPath, comfySchemaTsFormatted)
-            writeFileSync(this.nodesTSPath, comfySchemaTsFormatted, 'utf-8')
+            writeFileSync(this.nodesTSPath, comfySchemaTsFormatted[0], 'utf-8')
+            writeFileSync(this.blocklyTSPath, comfySchemaTsFormatted[1], 'utf-8')
             progress('[**** step 4/4] 🟢 schema updated')
         } catch (error) {
             console.error(error)
